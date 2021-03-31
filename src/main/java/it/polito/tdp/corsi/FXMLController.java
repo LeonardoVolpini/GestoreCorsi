@@ -11,6 +11,7 @@ import java.util.ResourceBundle;
 
 import it.polito.tdp.corsi.model.Corso;
 import it.polito.tdp.corsi.model.Model;
+import it.polito.tdp.corsi.model.Studente;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -67,9 +68,19 @@ public class FXMLController {
     		return;
     	}
     	List<Corso> corsi= this.model.getCorsiByPeriod(periodo);
-    	for (Corso c : corsi) {
+    	/*for (Corso c : corsi) {
     		this.txtRisultato.appendText(c.toString()+"\n");
+    	}*/
+    	this.txtRisultato.setStyle("-fx-font-family: monospace");
+    	StringBuilder sb= new StringBuilder();
+    	for (Corso c : corsi) {
+    		sb.append(String.format("%-8s", c.getCodins()));
+    		sb.append(String.format("%-4d", c.getCrediti()));
+    		sb.append(String.format("%-50s", c.getNome()));
+    		sb.append(String.format("%-4d\n", c.getPd()));
+    		//sb.append(String.format("%-8s %-4d...", c.getCodins(), c.getCrediti(), ...));
     	}
+    	this.txtRisultato.appendText(sb.toString());
     }
 
     @FXML
@@ -100,12 +111,33 @@ public class FXMLController {
 
     @FXML
     void stampaDivisione(ActionEvent event) {
-
+    	this.txtRisultato.clear();
+    	String codins = txtCorso.getText();
+    	if(!model.esisteCorso(codins)) {
+    		this.txtRisultato.setText("Il corso non esiste");
+    		return;
+    	}
+    	Map<String,Integer> div= model.getDivisioneCDS(codins);
+    	for (String cds : div.keySet()) {
+    		this.txtRisultato.appendText(cds+" -> "+div.get(cds)+"\n");
+    	}
     }
 
     @FXML
     void stampaStudenti(ActionEvent event) {
-
+    	this.txtRisultato.clear();
+    	String codins = txtCorso.getText();
+    	if(!model.esisteCorso(codins)) {
+    		this.txtRisultato.setText("Il corso non esiste");
+    		return;
+    	}
+    	List<Studente> studenti= this.model.getStudentiByCorso(codins);
+    	if(studenti.size()==0) {
+    		this.txtRisultato.setText("Il corso non ha iscritti");
+    		return;
+    	}
+    	for (Studente s: studenti)
+    		this.txtRisultato.appendText(s+"\n");
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
